@@ -9,6 +9,14 @@ class Student:
         self.grades = {}
 # Оценка лекторов
     def rate_lecturer(self, lecturer, course, grade):
+        if not(0 <= grade <=10):
+            return 'Ошибка: Оценка должна быть от 0 до 10'
+        if not isinstance(lecturer, Lecturer):
+           return 'Ошибка: Лектор не найден' 
+        if course not in lecturer.courses_attached:
+            return 'Ошибка: Курс не приклеплен к лектору'
+        if course not in self.finished_courses and course not in self.courses_in_progress:
+            return 'Ошибка: Курс не найден у студента'       
         if (isinstance(lecturer, Lecturer) and course in lecturer.courses_attached and grade in range(0, 11)
             and (course in self.finished_courses or course in self.courses_in_progress)):
             if course in lecturer.grades:
@@ -17,18 +25,11 @@ class Student:
                 lecturer.grades[course] = [grade]
         else:
             return 'Ошибка'
-# Расчет средней оценки
+# Расчет средней оценки  
     def average_hw(self):
-        sum_grades = 0
-        count_grades = 0
-        for grade_hw in self.grades.values():
-           for grade in grade_hw:
-                sum_grades += grade
-                count_grades += 1
-        if count_grades > 0:
-            return f'{sum_grades / count_grades:.2f}'
-        else:
-            return f'Нет оценок'
+        all_grades = [grade for grades in self.grades.values() for grade in grades]
+        return f'{sum(all_grades) / len(all_grades):.2f}' if all_grades else 'Нет оценок'
+
 # Сравнение
     def __gt__(self, student):
         return self.average_hw() > student.average_hw()
@@ -52,16 +53,9 @@ class Mentor:
 class Lecturer(Mentor):
 # Расчет средней оценки    
     def average_lect(self):
-        sum_grades = 0
-        count_grades = 0
-        for grade_lect in self.grades.values():
-           for grade in grade_lect:
-                sum_grades += grade
-                count_grades += 1
-        if count_grades > 0:
-            return f'{sum_grades / count_grades:.2f}'
-        else:
-            return f'Нет оценок'
+        all_grades = [grade for grades in self.grades.values() for grade in grades]
+        return f'{sum(all_grades) / len(all_grades):.2f}' if all_grades else 'Нет оценок'
+
 # Сравнение
     def __gt__(self, lecturer):
         return self.average_lect() > lecturer.average_lect()
@@ -88,32 +82,8 @@ class Reviewer (Mentor):
         result = f'Имя: \033[31m{self.name}\033[0m\n'
         result += f'Фамилия: \033[31m{self.surname}\033[0m\n'
         return result
-"""
-# Функция расчета средней оценки по студентам на курсе
 
-def student_grades(student_list, course):
-    sum_grades = 0
-    count_grades = 0
-    for student in student_list:
-        if course in student.grades.keys():
-            for grades in student.grades[course]:
-                sum_grades += grades
-                count_grades += 1
-    return f'{sum_grades / count_grades:.2f}'
-
-# Функция расчета средней оценки по лекторам на курсе
-
-def lecturer_grades(lecturer_list, course):
-    sum_grades = 0
-    count_grades = 0
-    for lecturer in lecturer_list:
-        if course in lecturer.grades.keys():
-            for grades in lecturer.grades[course]:
-                sum_grades += grades
-                count_grades += 1
-    return f'{sum_grades / count_grades:.2f}'
-"""
-# Функция расчета средней оценки по студентам и лекторам на курсе
+# Функция расчета средней оценки по студентам или лекторам на курсе
 
 def average_grades(person_list, course):
     sum_grades = 0
@@ -127,7 +97,10 @@ def average_grades(person_list, course):
         return f'{sum_grades / count_grades:.2f}'
     else:
         return f'Нет оценок'
-
+# def average_grades(person_list, course):
+#     for person in person_list:
+#         all_grades = [grade for grades in person.grades[course] for grade in grades]
+#         return f'{sum(all_grades) / len(all_grades):.2f}' if all_grades else 'Нет оценок'
 # Ввод данных   
      
 courses_list=['Введение в программирование', 'Python', 'GIT']
